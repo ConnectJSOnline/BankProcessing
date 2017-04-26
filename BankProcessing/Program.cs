@@ -17,8 +17,33 @@ namespace BankProcessing
         static void Main(string[] args)
         {
             ReadFiles();
-            Console.WriteLine(" -------  Processing Completed -----");
+            SaveExcel();
+            Console.WriteLine(" -------  Processing Completed ----- Press Any Key to close -------");
             Console.ReadKey();
+        }
+
+        private static void SaveExcel()
+        {
+            FileInfo output = new FileInfo("output.xlsx");
+            if (output.Exists) output.Delete();
+            using (ExcelPackage package = new ExcelPackage(output))
+            {
+                ExcelWorksheet ws = package.Workbook.Worksheets.Add("output");
+                ws.Cells[1, 1].Value = "File";
+                ws.Cells[1, 2].Value = "Date";
+                ws.Cells[1, 3].Value = "ReciptNo";
+                ws.Cells[1, 4].Value = "Cheque";
+                ws.Cells[1, 5].Value = "Amount";
+                for (int i = 0; i < Payments.Count; i++)
+                {
+                    ws.Cells[i + 2, 1].Value = Path.GetFileName(Payments[i].FileName.FullName);
+                    ws.Cells[i + 2, 2].Value = Payments[i].DateOfPayment.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                    ws.Cells[i + 2, 3].Value = Payments[i].ReciptNo;
+                    ws.Cells[i + 2, 4].Value = Payments[i].ChequeNo;
+                    ws.Cells[i + 2, 5].Value = Payments[i].Amount;
+                }
+                package.Save();
+            }
         }
 
         public static string SanitizeValue(ExcelRange cellAddress)
